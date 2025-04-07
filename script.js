@@ -35,8 +35,9 @@
 function saveData() {
     const question = document.getElementById("question").value;
     const modelAnswer = document.getElementById("modelAnswer").value;
+    // const studentName = document.getElementById("studentName").value;
     const studentName = document.getElementById("studentName").value;
-  
+    
     localStorage.setItem("question", question);
     localStorage.setItem("modelAnswer", modelAnswer);
     localStorage.setItem("studentName", studentName);
@@ -69,8 +70,9 @@ function saveData() {
   async function submitAnswer() {
     const modelAnswer = localStorage.getItem("modelAnswer");
     const studentAnswer = document.getElementById("studentAnswer").value;
-    const studentName = localStorage.getItem("studentName");
-  
+    // const studentName = localStorage.getItem("studentName");
+    const studentName = localStorage.getItem("currentUser");
+
     const data = new URLSearchParams();
     data.append("model_answer", modelAnswer);
     data.append("student_answer", studentAnswer);
@@ -122,7 +124,7 @@ function saveData() {
       }
     });
   }
-  
+  ;kljn
   // Export CSV
   function downloadReport() {
     const records = JSON.parse(localStorage.getItem("submissions") || "[]");
@@ -137,4 +139,43 @@ function saveData() {
     link.download = "assessment_report.csv";
     link.click();
   }
+  // Role-based access control
+window.onload = function () {
+    const role = localStorage.getItem("role");
+    const currentPage = window.location.pathname;
+  
+    // Access control rules
+    const accessRules = {
+      "faculty.html": "faculty",
+      "report.html": "faculty",
+      "student.html": "student"
+    };
+  
+    for (let page in accessRules) {
+      if (currentPage.includes(page) && role !== accessRules[page]) {
+        alert("Unauthorized access. Redirecting to login.");
+        window.location.href = "index.html";
+        return;
+      }
+    }
+  
+    // Load question if student
+    const qEl = document.getElementById("questionDisplay");
+    if (qEl) {
+      const question = localStorage.getItem("question");
+      qEl.innerHTML = `<strong>${question}</strong>`;
+    }
+  
+    // Load report if faculty
+    const reportTable = document.getElementById("reportTable");
+    if (reportTable) {
+      const records = JSON.parse(localStorage.getItem("submissions") || "[]");
+      let table = `<table border='1'><tr><th>Name</th><th>Simple</th><th>CFPD</th></tr>`;
+      records.forEach(r => {
+        table += `<tr><td>${r.name}</td><td>${r.simple}</td><td>${r.cfpd}</td></tr>`;
+      });
+      table += `</table>`;
+      reportTable.innerHTML = table;
+    }
+  };
   

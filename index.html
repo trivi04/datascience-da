@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Assessment Portal Login</title>
+</head>
+<body>
+  <h2>Welcome to the Assessment Portal</h2>
+  <label>Name:</label><br>
+  <input type="text" id="username"><br><br>
+
+  <label>Select Role:</label><br>
+  <select id="role">
+    <option value="student">Student</option>
+    <option value="faculty">Faculty</option>
+  </select><br><br>
+
+  <button onclick="login()">Login</button>
+</body>
+<script>
+  function login() {
+    const name = document.getElementById("username").value;
+    const role = document.getElementById("role").value;
+
+    if (!name) {
+      alert("Please enter a name.");
+      return;
+    }
+
+    // Store login info
+    localStorage.setItem("currentUser", name);
+    localStorage.setItem("role", role);
+
+    // Redirect based on role
+    if (role === "faculty") {
+      window.location.href = "faculty.html";
+    } else {
+      window.location.href = "student.html";
+    }
+  }
+</script>
+</html>
