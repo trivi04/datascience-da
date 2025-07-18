@@ -1,41 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Assessment Portal Login</title>
+  <title>Question and Answer Portal</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-  <h2>Welcome to the Assessment Portal</h2>
-  <label>Name:</label><br>
-  <input type="text" id="username"><br><br>
+  <h1>Question and Answer Portal</h1>
 
-  <label>Select Role:</label><br>
-  <select id="role">
-    <option value="student">Student</option>
-    <option value="faculty">Faculty</option>
-  </select><br><br>
+  <h2>Faculty Portal</h2>
+  <p><a href="/faculty.html">Go to Faculty Portal</a></p>
 
-  <button onclick="login()">Login</button>
+  <h2>Student Portal</h2>
+  <p><a href="/student.html">Go to Student Portal</a></p>
 </body>
-<script>
-  function login() {
-    const name = document.getElementById("username").value;
-    const role = document.getElementById("role").value;
-
-    if (!name) {
-      alert("Please enter a name.");
-      return;
-    }
-
-    // Store login info
-    localStorage.setItem("currentUser", name);
-    localStorage.setItem("role", role);
-
-    // Redirect based on role
-    if (role === "faculty") {
-      window.location.href = "faculty.html";
-    } else {
-      window.location.href = "student.html";
-    }
-  }
-</script>
 </html>

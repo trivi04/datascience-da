@@ -3,18 +3,24 @@
 <html>
 <head>
   <title>Student Portal</title>
+  <link rel="stylesheet" href="/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+  <h1>Student Portal</h1>
   <h2>Answer the Question</h2>
+  <div id="questionSection">
+    <label for="questionDisplay">Question:</label>
   <div id="questionDisplay"></div><br>
+  </div>
 
+  <form id="answerForm">
+  <label for="studentAnswer">Your Answer:</label><br>
   <textarea id="studentAnswer" rows="4" cols="50"></textarea><br><br>
   <button onclick="submitAnswer()">Submit</button>
+  </form>
 
-  <h3>Result:</h3>
-  <pre id="resultOutput"></pre>
-  <canvas id="scoreChart" width="400" height="200"></canvas>
+  <div id="scoreSection">
+    <h3>Your Score:</h3>
+  </div>
 </body>
-<script src="script.js"></script>
-</html>

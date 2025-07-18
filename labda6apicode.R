@@ -247,6 +247,100 @@ function(answers) {
   return(results)
 }
 
+#* Get average scores by student
+#* @get /average_scores_by_student
+function() {
+  submissions_file <- "submissions.json"
+
+ if (!file.exists(submissions_file)) {
+ return(list(message = "No submissions available yet.", status = 404))
+  }
+
+ submissions <- fromJSON(readLines(submissions_file), simplifyVector = FALSE)
+
+  if (length(submissions) == 0) {
+ return(list(message = "No submissions available yet.", status = 404))
+  }
+
+ # Calculate average simple score for each student
+  average_scores <- tapply(sapply(submissions, function(x) x$evaluation_scores$simple_score),
+                          sapply(submissions, function(x) x$student_name),
+                           mean)
+
+ return(as.list(average_scores))
+}
+
+#* Get all student submissions
+#* @get /get_submissions
+function() {
+  submissions_file <- "submissions.json"
+
+  if (!file.exists(submissions_file)) {
+ return(list(message = "No submissions available yet.", status = 404))
+  }
+
+  submissions <- fromJSON(readLines(submissions_file), simplifyVector = FALSE)
+
+ return(submissions)
+}
+
+#* Save student submission and evaluate
+#* @param student_name The name of the student
+#* @param question The question text
+#* @param student_answer The student's submitted answer
+#* @post /save_submission
+function(student_name, question, student_answer) {
+  # Validate inputs
+  if (missing(student_name) || missing(question) || missing(student_answer)) {
+    return(list(
+      error = "Both student_name, question, and student_answer are required",
+      status = 400
+    ))
+  }
+
+  # Get the model answer for the given question (assuming latest for simplicity)
+  # In a more robust app, you'd link submissions to specific questions by ID
+  questions_file <- "questions.json"
+  model_answer <- ""
+  if (file.exists(questions_file)) {
+    questions <- fromJSON(readLines(questions_file), simplifyVector = FALSE)
+    if (length(questions) > 0) {
+      # Find the model answer for the matching question text
+      # This assumes question text is unique - use IDs for better practice
+      matching_question <- Filter(function(q) q$question == question, questions)
+      if (length(matching_question) > 0) {
+        model_answer <- matching_question[[1]]$model_answer
+      }
+    }
+  }
+
+  # Evaluate the student's answer using the /evaluate_answer logic
+  evaluation_results <- evaluate_answer(model_answer, student_answer) # Reuse existing logic
+
+  # Prepare the submission data
+  submission_data <- list(
+    student_name = student_name,
+    question = question,
+    student_answer = student_answer,
+    evaluation_scores = evaluation_results$scores # Include the scores
+  )
+
+  submissions_file <- "submissions.json"
+
+  # Read existing submissions or initialize an empty list
+  if (file.exists(submissions_file)) {
+    existing_submissions <- fromJSON(readLines(submissions_file), simplifyVector = FALSE)
+    updated_submissions <- c(existing_submissions, list(submission_data))
+  } else {
+    updated_submissions <- list(submission_data)
+  }
+
+  # Write the updated submissions back to the file
+  write(toJSON(updated_submissions, auto_unbox = TRUE, pretty = TRUE), submissions_file)
+
+  return(list(message = "Submission saved and evaluated successfully.", status = 200, evaluation = evaluation_results))
+}
+
 #* Health check endpoint
 #* @get /health
 function() {
@@ -255,4 +349,68 @@ function() {
     version = "1.0.0",
     description = "Answer Evaluation API with Two Scoring Methods"
   ))
+}
+
+#* Add a new student
+#* @param student_name The name of the student to add
+#* @post /add_student
+function(student_name) {
+  if (missing(student_name) || student_name == "") {
+ return(list(error = "Student name is required.", status = 400))
+  }
+
+  students_file <- "students.json"
+
+  if (file.exists(students_file)) {
+    existing_students <- fromJSON(readLines(students_file), simplifyVector = FALSE)
+    updated_students <- c(existing_students, list(student_name))
+  } else {
+    updated_students <- list(student_name)
+  }
+  write(toJSON(updated_students, auto_unbox = TRUE, pretty = TRUE), students_file)
+  return(list(message = "Student added successfully.", status = 200))
+}
+
+#* Save question and model answer
+#* @param question The question text
+#* @param model_answer The model answer text
+#* @post /save_question
+function(question, model_answer) {
+  if (missing(question) || missing(model_answer)) {
+    return(list(
+      error = "Both 'question' and 'model_answer' are required.",
+      status = 400
+    ))
+  }
+
+  new_question <- list(question = question, model_answer = model_answer)
+  questions_file <- "questions.json"
+
+  if (file.exists(questions_file)) {
+    existing_questions <- fromJSON(readLines(questions_file), simplifyVector = FALSE)
+    updated_questions <- c(existing_questions, list(new_question))
+  } else {
+    updated_questions <- list(new_question)
+  }
+
+  write(toJSON(updated_questions, auto_unbox = TRUE, pretty = TRUE), questions_file)
+
+  return(list(message = "Question and model answer saved successfully.", status = 200))
+}
+
+#* Get the latest question and model answer
+#* @get /get_question
+function() {
+  questions_file <- "questions.json"
+
+  if (!file.exists(questions_file)) {
+    return(list(message = "No questions available yet.", status = 404))
+  }
+
+  questions <- fromJSON(readLines(questions_file), simplifyVector = FALSE)
+
+  if (length(questions) == 0) {
+    return(list(message = "No questions available yet.", status = 404))
+  }
+  return(questions[[length(questions)]]) # Return the latest question and model answer
 }

@@ -1,21 +1,32 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Faculty Portal</title>
+  <link rel="stylesheet" href="/home/user/app/style.css">
 </head>
 <body>
-  <h2>Post a Question</h2>
+  <h2>Post Question and Answer</h2>
   <label>Question:</label><br>
   <textarea id="question"></textarea><br><br>
 
   <label>Model Answer:</label><br>
   <textarea id="modelAnswer"></textarea><br><br>
 
-  <label>Student Name:</label><br>
-  <input type="text" id="studentName"><br><br>
+  <button id="postQuestionBtn">Post Question</button>
 
-  <button onclick="saveData()">Post Question</button>
+  <h2>Student Submissions</h2>
+  <div id="studentSubmissions">
+    <!-- Student submissions will be loaded here -->
+  </div>
+
+  <h2>Add Student</h2>
+  <form id="addStudentForm">
+    <label for="studentName">Student Name:</label><br>
+    <input type="text" id="studentName" name="studentName"><br><br>
+    <button type="submit">Add Student</button>
+  </form>
+
+  </div>
 </body>
 <script src="script.js"></script>
 </html>
